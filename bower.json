@@ -1,0 +1,17 @@
+{
+  "name": "tryfer",
+  "version": "0.0.1",
+  "main": "./dist/tryfer.js",
+  "description": "Zipkin trace for angular",
+  "authors": [
+    "zhaoxuan <zhaoxuan1727@gmail.com>"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "license": "MIT"
+}

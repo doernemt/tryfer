@@ -1,0 +1,27 @@
+{
+  "name": "ng-tryfer",
+  "version": "0.0.2",
+  "main": "./dist/ng-tryfer.js",
+  "description": "Zipkin trace for angular",
+  "authors": [
+    "zhaoxuan <zhaoxuan1727@gmail.com>"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/zhaoxuan/ng-tryfer",
+  "_release": "0.0.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.2",
+    "commit": "2ce5a29f623053e3e8e09807e7f67a67a8cdea19"
+  },
+  "_source": "git://github.com/zhaoxuan/ng-tryfer.git",
+  "_target": "0.0.2",
+  "_originalSource": "ng-tryfer"
+}
