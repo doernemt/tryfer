@@ -1,7 +1,7 @@
 /**
- * Restful Resources service for AngularJS apps
- * @version v1.4.0 - 2014-04-25 * @link https://github.com/mgonto/restangular
- * @author Martin Gontovnikas <martin@gon.to>
+ * Restful Trace service for AngularJS apps
+ * @version v0.0.1 - 2014-08-11 * @link https://github.com/zhaoxuan/tryfer
+ * @author John Zhao <zhaoxuan1727@gmail.com>
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 'use strict';
@@ -16,20 +16,50 @@
       var trace = {};
       var largestRandom = Math.pow(2, 53) - 1;
 
-      function initTrace(reqHeader) {
+      function initTrace(reqHeader, sampleRate, name, hostHash) {
+        if (sampleRate === undefined || sampleRate === null) {
+          sampleRate = 0.001;
+        }
+
+        if (reqHeader === undefined || reqHeader === null) {
+          reqHeader = {};
+        }
+
+        if (name === undefined || name === null) {
+          name = 'HTTP';
+        }
+
+        if (Math.random() <= sampleRate) {
+          trace.sampleRate = true;
+        }else {
+          trace.sampleRate = false;
+          return trace;
+        }
+
         var traceId = reqHeader['X-B3-TraceId'] || getUniqueId();
-        var spanId = reqHeader['X-B3-SpanId'] || getUniqueId();
-        var parentId = reqHeader['X-B3-ParentSpanId'] || getUniqueId();
+        var spanId = getUniqueId();
+        var parentId = reqHeader['X-B3-SpanId'] || null;
 
         var span = {
           'trace_id': hexStringify(traceId),
           'span_id': hexStringify(spanId),
-          'parent_id': hexStringify(parentId),
-          'name': 'GET',
+          'name': name,
           'annotations': []
         };
 
-        var host = trace.getHost();
+        if (parentId !== null) {
+          span['parent_id'] = hexStringify(parentId);
+        }
+
+        if (hostHash === undefined || hostHash === null) {
+          hostHash = {
+            'ip': '127.0.0.1',
+            'port': 80,
+            'service_name': 'tryfer'
+          };
+        }
+
+        var host = trace.getHost(hostHash);
 
         trace.span = span;
         trace.host = host;
@@ -38,6 +68,10 @@
       }
 
       trace.clientSend = function() {
+        if (trace.sampleRate === false) {
+          return trace;
+        }
+
         var annotation = {
           'type': 'timestamp',
           'key': 'cs',
@@ -50,6 +84,10 @@
       };
 
       trace.clientReceive = function() {
+        if (trace.sampleRate === false) {
+          return trace;
+        }
+
         var annotation = {
           'type': 'timestamp',
           'key': 'cr',
@@ -58,11 +96,36 @@
         };
 
         trace.span.annotations.push(annotation);
+        trace.sendData();
         return trace;
+      };
+
+      trace.sendData = function() {
+        if (trace.sampleRate === false) {
+          return 'sampleRate is false';
+        }
+
+        var data = [];
+        data.push(trace.span);
+
+        $http.post(
+          'http://localhost:6956/v1.0/trace',
+          data,
+          {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST'
+          }
+        );
+
       };
 
       // type = {string, bytes, timestamp}
       trace.record = function(type, key, value) {
+        if (trace.sampleRate === false) {
+          return trace;
+        }
+
         var annotation = {
           'type': type,
           'key': key,
@@ -75,7 +138,11 @@
         return trace;
       };
 
-      trace.getHost = function(ip, port, serviceName) {
+      trace.getHost = function(hostHash) {
+        var ip = hostHash['ip'];
+        var port = hostHash['port'];
+        var serviceName = hostHash['service_name'];
+
         if (ip === undefined || ip === null) {
           ip = '127.0.0.1';
         }
@@ -95,25 +162,26 @@
         return host;
       };
 
+      trace.getHeaders = function() {
+        var headers = {};
+
+        if (trace.sampleRate === false) {
+          return headers;
+        }
+
+        var span = trace.span;
+        headers['X-B3-TraceId'] = span['trace_id'];
+        headers['X-B3-SpanId'] = span['span_id'];
+        headers['X-B3-ParentSpanId'] = span['parent_id'];
+
+        return headers;
+      };
+
       function ipv4ToNumber(ipv4) {
-        var octets = ipv4.split('.');
-        var sum = 0, i;
+        var dot = ipv4;
+        var d = dot.split('.');
+        return (((((((+d[0])*256)+(+d[1]))*256)+(+d[2]))*256)+(+d[3])).toString();
 
-        if(octets.length !== 4) {
-          throw new Error('IPv4 string does not have 4 parts.');
-        }
-
-        for (i=0; i<4; i++) {
-          var octet = parseInt(octets[i], 10);
-          if (isNaN(octet) || octet < 0 || octet > 255) {
-            throw new Error('IPv4 string contains a value that is not a number ' +
-                            'between 0 and 255 inclusive');
-          }
-
-          sum = (sum << 8) + octet;
-        }
-
-        return sum;
       }
 
       function hexStringify(number, length) {
@@ -136,19 +204,6 @@
 
       function getNowMicros() {
         return Date.now() * 1000;
-      }
-
-      function postData() {
-        $http({
-          url: 'http://www.baidu.com',
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, X-Requested-With',
-          }
-        });
       }
 
       function call() {
