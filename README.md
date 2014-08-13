@@ -1,7 +1,7 @@
-tryfer
-======
+angular tryfer
+==============
 
-A REST interface for publish json trace to restkin
+A REST interface for publishing json trace to restkin api
 
 INSTALL
 =======
