@@ -48,7 +48,6 @@
           var dot = ipv4;
           var d = dot.split('.');
           return (((((((+d[0])*256)+(+d[1]))*256)+(+d[2]))*256)+(+d[3])).toString();
-
         }
 
         function hexStringify(number, length) {
