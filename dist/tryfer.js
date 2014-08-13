@@ -16,7 +16,7 @@
 
       object.setSampleRate = function(sampleRate) {
         if (sampleRate === undefined || sampleRate === null) {
-          sampleRate = 0.1;
+          sampleRate = 0.01;
         }
         config.sampleRate = sampleRate;
       };
