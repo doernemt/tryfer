@@ -106,8 +106,9 @@
 
           var span = trace.span;
           headers['X-B3-TraceId'] = span['trace_id'];
-          headers['X-B3-SpanId'] = span['span_id'];
-          headers['X-B3-ParentSpanId'] = span['parent_id'];
+          headers['X-B3-SpanId'] = getUniqueId();
+          headers['X-B3-ParentSpanId'] = span['span_id'];
+          headers['X-B3-Sampled'] = trace.sampleRate;
 
           return headers;
         };
@@ -159,7 +160,8 @@
             {
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'POST'
+              'Access-Control-Allow-Methods': 'POST',
+              'Access-Control-Allow-Headers': '*'
             }
           ).success(function() {
               console.log('trace success');
@@ -207,8 +209,8 @@
           }
 
           var traceId = requestHeader['X-B3-TraceId'] || getUniqueId();
-          var spanId = getUniqueId();
-          var parentId = requestHeader['X-B3-SpanId'] || null;
+          var spanId = requestHeader['X-B3-SpanId'] || getUniqueId();
+          var parentId = requestHeader['X-B3-ParentId'] || null;
 
           var span = {
             'trace_id': hexStringify(traceId),
@@ -217,7 +219,7 @@
             'annotations': []
           };
 
-          if (parentId !== null) {
+          if (parentId !== null && parentId !== undefined) {
             span['parent_id'] = hexStringify(parentId);
           }
 
