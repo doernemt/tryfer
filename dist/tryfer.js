@@ -80,7 +80,7 @@
           var hostHash = config.hostHash;
           var ip = hostHash['ip'];
           var port = hostHash['port'];
-          var serviceName = hostHash['service_name'];
+          var serviceName = hostHash['service_name'].toString();
 
           if (ip === undefined || ip === null) {
             ip = '127.0.0.1';
@@ -89,7 +89,12 @@
             port = 80;
           }
           if (serviceName === undefined || serviceName === null) {
-            serviceName = 'tryfer:default';
+            serviceName = 'tryfer';
+          }
+          if (config.productName === undefined || config.productName === null) {
+            serviceName = 'default:' + serviceName;
+          } else {
+            serviceName = config.productName.toString() + serviceName;
           }
 
           var host = {
@@ -165,8 +170,7 @@
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Methods': 'POST',
-              'Access-Control-Allow-Headers': '*',
-              'X-B3-Product': config.productName
+              'Access-Control-Allow-Headers': '*'
             }
           ).success(function() {
               console.log('trace success');
