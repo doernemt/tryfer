@@ -33,6 +33,10 @@
         config.hostHash = hostHash;
       };
 
+      object.setProduct = function(product) {
+        config.productName = product;
+      };
+
     };
 
     Configurer.init(this, globalConfiguration);
@@ -161,7 +165,8 @@
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Methods': 'POST',
-              'Access-Control-Allow-Headers': '*'
+              'Access-Control-Allow-Headers': '*',
+              'X-B3-Product': config.productName
             }
           ).success(function() {
               console.log('trace success');
