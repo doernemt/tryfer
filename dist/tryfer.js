@@ -94,7 +94,7 @@
           if (config.productName === undefined || config.productName === null) {
             serviceName = 'default:' + serviceName;
           } else {
-            serviceName = config.productName.toString() + serviceName;
+            serviceName = config.productName.toString() + ':' + serviceName;
           }
 
           var host = {
