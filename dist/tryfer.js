@@ -162,7 +162,6 @@
 
           var data = [];
           data.push(trace.span);
-
           $http.post(
             config.restkinUrl,
             data,
@@ -170,7 +169,7 @@
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Methods': 'POST',
-              'Access-Control-Allow-Headers': '*'
+              'Access-Control-Allow-Headers': 'x-prototype-version,x-requested-with'
             }
           ).success(function() {
               console.log('trace success');
